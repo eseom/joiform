@@ -1,6 +1,7 @@
 const Hapi = require('hapi')
 const Nunjucks = require('nunjucks')
 const Joi = require('joi')
+const { Form, TextInput, TextArea } = require('./joiform')
 
 const server = Hapi.Server({
   port: 4500
@@ -8,57 +9,19 @@ const server = Hapi.Server({
 
 const schema = Joi.object().keys({
   username: Joi.string().alphanum().min(3).max(30).required(),
-  password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).meta({type: 'password'}),
+  password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/)
+    .meta({
+      type: 'password'
+    }),
+  memo: Joi.string().min(3).required()
+    .meta({
+      widget: TextArea,
+    }),
 })
-
-class Field {
-  constructor(key, schema) {
-    this.key = key
-    this.label = key
-    this.schema = schema
-    this.type = schema.schemaType
-    this.isPassword = schema._meta.length > 0 && schema._meta[0].type === 'password'
-    this.required = schema._flags.presence === 'required'
-    // console.log(this.schema)
-  }
-
-  html(widget) {
-    if (widget) {
-      return 'widget not implemented'
-    } else {
-      const type = this.isPassword ? 'password' : 'text'
-      return `<input type="${type}" name="${this.key}" value="" required=${this.required}>`
-    }
-  }
-
-  toString() {
-    return `name: ${this.key}, type: ${this.type}, required: ${this.required}`
-  }
-}
-
-class JoiForm {
-  constructor(schema) {
-    const keys = Object.keys(schema)
-    schema._inner.children.forEach((c) => {
-      this[c.key] = new Field(c.key, c.schema)
-      // console.log(this[c.key].html())
-    })
-  }
-
-  update(payload) {
-    console.log(payload)
-  }
-
-  validate() {
-    return false
-  }
-}
 
 server.register(
   require('vision')
 ).then(() => {
-  const loginForm = new JoiForm(schema)
-
   server.views({
     isCached: false,
     engines: {
@@ -75,24 +38,18 @@ server.register(
         }
       }
     },
-    // relativeTo: __dirname,
-    // path: 'examples/nunjucks/templates'
   });
 
   server.route({
     path: '/',
     method: 'post',
     handler(request, h) {
+      const loginForm = new Form(schema)
       loginForm.update(request.payload)
       if (loginForm.validate()) {
-        // const result = Joi.validate({
-        //   username: 'abc',
-        //   password: '123123',
-        // }, schema)
-        return h.view('index', { loginForm, result: true })
-      } else {
-        return h.view('index', { loginForm, result: false })
+        return h.redirect('/')
       }
+      return h.view('index', { loginForm, result: false })
     }
   })
 
@@ -100,10 +57,7 @@ server.register(
     path: '/',
     method: 'get',
     handler(request, h) {
-      // const result = Joi.validate({
-      //   username: 'abc',
-      //   password: '123123',
-      // }, schema)
+      const loginForm = new Form(schema)
       return h.view('index', { loginForm })
     }
   })

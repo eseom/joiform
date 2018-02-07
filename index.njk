@@ -1,29 +1,40 @@
+{% extends 'base.njk' %}
+
 {% macro render_field(field) %}
-  <dt>{{ field.label }}</dt>
-  <dd>
-    {{ field.html() | safe }}
-    {% if field.errors %}
-      <ul class=errors>
+  <div class="form-group{% if field.hasErrors() %} has-warning{% endif %}">
+    <label class="">{{ field.label }}</label>
+    {{ field.html({ _class: 'form-control' }) | safe }}
+    {% if field.hasErrors() %}
       {% for error in field.errors %}
-        <li>{{ error }}</li>
+        <div class="form-control-feedback">{{ error }}</div>
       {% endfor %}
-      </ul>
     {% endif %}
-  </dd>
+  </div>
 {% endmacro %}
 
-<h1>
-  template
-</h1>
+{% block body %}
+  {{ super() }}
+  <div class="container-fluid">
+    <div class="mt-3">
+      <h1>
+        Joiform registration example
+      </h1>
+    </div>
 
-<div>
-  <form method="post">
-    <dl>
+    <hr>
+
+    {% if not result %}
+      <div class="alert alert-danger">
+        validation result:
+        {{ result }}
+      </div>
+    {% endif %}
+
+    <form method="post">
       {{ render_field(loginForm.username) }}
       {{ render_field(loginForm.password) }}
-    </dl>
-    <p><input type="submit"></p>
-  </form>
-</div>
-
-result: {{ result }}
+      {{ render_field(loginForm.memo) }}
+      <p><input type="submit" class="btn btn-primary"></p>
+    </form>
+  </div>
+{% endblock %}

@@ -7,10 +7,12 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "nodemon",
+      "runtimeExecutable": "nodemon",
       "program": "${workspaceFolder}/index.js",
-      "console": "internalConsole",
-      "internalConsoleOptions": "neverOpen",
-    }
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
   ]
 }
