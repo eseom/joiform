@@ -8,15 +8,28 @@ class TextArea {
 
 }
 
+class CheckBox {
+
+}
+
 class Field {
   constructor(key, schema) {
     this.key = key
     this.label = key
     this.schema = schema
-    this.value = ''
     this.type = schema.schemaType
+    switch (this.type) {
+      case 'boolean':
+        this.value = this.schema._flags.default || false
+        break
+      case 'string':
+      default:
+        this.value = this.schema._flags.default || ''
+        break
+    }
+    this.description = schema._description
     this.isPassword = false
-    this.widget = TextInput
+    this.widget = undefined
     if (schema._meta.length > 0) {
       this.isPassword = schema._meta[0].type === 'password'
       if (schema._meta[0].widget) {
@@ -39,21 +52,39 @@ class Field {
     this.value = value
   }
 
-  html({ _class }) {
+  html({ _class, ...attributesObject }) {
     const attributes = {}
     if (_class) {
       attributes.class = _class
     }
+    Object.keys(attributesObject).forEach((key) => {
+      attributes[key] = attributesObject[key]
+    })
     const attributesMap = Object.keys(attributes).map((k) => {
       return ` ${k}="${attributes[k]}"`
     })
+
+    // decide the widget
+    if (typeof this.widget === 'undefined') {
+      switch (this.type) {
+        case 'string':
+          this.widget = TextInput
+          break
+        case 'boolean':
+          this.widget = CheckBox
+          break
+      }
+    }
+
+    // draw html
     switch (this.widget) {
       case TextArea:
         return `<textarea name="${this.key}" required=${this.required}${attributesMap.join('')}>${this.value}</textarea>`
       case TextInput:
-      default:
         const type = this.isPassword ? 'password' : 'text'
         return `<input type="${type}" name="${this.key}" value="${this.value}" required=${this.required}${attributesMap.join('')}>`
+      case CheckBox:
+        return `<input type="checkbox" name="${this.key}" value="1"${this.value ? ' checked="checked"' : ''}${attributesMap.join('')}>`
     }
   }
 
@@ -79,6 +110,9 @@ exports.Form = class Form {
   update(payload) {
     this.__payload = payload
     Object.keys(this.__payload).forEach((k) => {
+      if (this[k].type === 'boolean') {
+        this.__payload[k] = !!this.__payload[k]
+      }
       this[k].setValue(this.__payload[k])
     })
   }
@@ -95,6 +129,12 @@ exports.Form = class Form {
     this.__errorCount = error ? error.details.length : 0
     this.__error = error
     return error === null
+  }
+
+  get data() {
+    return this.__fields
+      .map((f) => ({ [f]: this[f].value }))
+      .reduce((a, b) => ({ ...a, ...b }))
   }
 }
 

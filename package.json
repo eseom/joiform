@@ -1,14 +1,15 @@
 {
   "name": "node1",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
+  "main": "joiform.js",
   "dependencies": {
     "forms": "^1.3.0",
     "hapi": "^17.2.0",
     "joi": "^13.1.2",
     "nunjucks": "^3.0.1",
-    "vision": "^5.3.1"
+    "vision": "^5.3.1",
+    "yar": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^1.14.12"
