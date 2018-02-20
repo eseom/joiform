@@ -18,14 +18,10 @@ class Field {
     this.label = key
     this.schema = schema
     this.type = schema.schemaType
-    switch (this.type) {
-      case 'boolean':
+    this.value = this.schema._flags.default || ''
+    // coerce the boolean type
+    if (this.type === 'boolean') {
         this.value = this.schema._flags.default || false
-        break
-      case 'string':
-      default:
-        this.value = this.schema._flags.default || ''
-        break
     }
     this.description = schema._description
     this.isPassword = false
@@ -110,6 +106,7 @@ exports.Form = class Form {
   update(payload) {
     this.__payload = payload
     Object.keys(this.__payload).forEach((k) => {
+      // coerce the boolean type
       if (this[k].type === 'boolean') {
         this.__payload[k] = !!this.__payload[k]
       }
