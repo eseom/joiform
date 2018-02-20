@@ -1,15 +1,34 @@
 const Joi = require('joi')
 
-class TextInput {
-
+class Widget {
+  constructor({ attributes, value, isPassword }) {
+    this.attributesMap = Object.keys(attributes).map((k) =>
+      ` ${k}="${attributes[k]}"`)
+    this.value = value
+    this.isPassword = isPassword
+  }
 }
 
-class TextArea {
-
+class TextInput extends Widget {
+  html() {
+    this.attributesMap.type = this.isPassword ? 'password' : 'text'
+    this.attributesMap.value = this.value
+    console.log(`<input${this.attributesMap.join('')}>`)
+    return `<input${this.attributesMap.join('')}>`
+  }
 }
 
-class CheckBox {
+class TextArea extends Widget {
+  html() {
+    return `<textarea${this.attributesMap.join('')}>${this.value}</textarea>`
+  }
+}
 
+class CheckBox extends Widget {
+  html() {
+    delete this.attributesMap.required
+    return `<input type="checkbox" value="1"${this.value ? ' checked="checked"' : ''}}${this.attributesMap.join('')}>`
+  }
 }
 
 class Field {
@@ -21,7 +40,7 @@ class Field {
     this.value = this.schema._flags.default || ''
     // coerce the boolean type
     if (this.type === 'boolean') {
-        this.value = this.schema._flags.default || false
+      this.value = this.schema._flags.default || false
     }
     this.description = schema._description
     this.isPassword = false
@@ -49,16 +68,12 @@ class Field {
   }
 
   html({ _class, ...attributesObject }) {
-    const attributes = {}
-    if (_class) {
-      attributes.class = _class
+    const attributes = {
+      name: this.key,
+      required: this.required,
+      ...(_class ? { class: _class } : {}),
+      ...attributesObject,
     }
-    Object.keys(attributesObject).forEach((key) => {
-      attributes[key] = attributesObject[key]
-    })
-    const attributesMap = Object.keys(attributes).map((k) => {
-      return ` ${k}="${attributes[k]}"`
-    })
 
     // decide the widget
     if (typeof this.widget === 'undefined') {
@@ -73,15 +88,11 @@ class Field {
     }
 
     // draw html
-    switch (this.widget) {
-      case TextArea:
-        return `<textarea name="${this.key}" required=${this.required}${attributesMap.join('')}>${this.value}</textarea>`
-      case TextInput:
-        const type = this.isPassword ? 'password' : 'text'
-        return `<input type="${type}" name="${this.key}" value="${this.value}" required=${this.required}${attributesMap.join('')}>`
-      case CheckBox:
-        return `<input type="checkbox" name="${this.key}" value="1"${this.value ? ' checked="checked"' : ''}${attributesMap.join('')}>`
-    }
+    return new this.widget({
+      attributes,
+      value: this.value,
+      isPassword: this.isPassword,
+    }).html()
   }
 
   toString() {
