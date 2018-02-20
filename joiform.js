@@ -1,33 +1,51 @@
 const Joi = require('joi')
 
+/**
+ * Widgets superclass
+ */
 class Widget {
   constructor({ attributes, value, isPassword }) {
-    this.attributesMap = Object.keys(attributes).map((k) =>
-      ` ${k}="${attributes[k]}"`)
     this.value = value
     this.isPassword = isPassword
+    const newAttributes = this.adjustAttributes(attributes)
+    this.attributesMap = Object.keys(newAttributes).map((k) =>
+      ` ${k}="${newAttributes[k]}"`)
   }
 }
 
 class TextInput extends Widget {
+  adjustAttributes(attributes) {
+    return {
+      ...attributes,
+      type: this.isPassword ? 'password' : 'text',
+      value: this.value,
+    }
+  }
+
   html() {
-    this.attributesMap.type = this.isPassword ? 'password' : 'text'
-    this.attributesMap.value = this.value
-    console.log(`<input${this.attributesMap.join('')}>`)
     return `<input${this.attributesMap.join('')}>`
   }
 }
 
 class TextArea extends Widget {
+  adjustAttributes(attributes) {
+    return attributes
+  }
+
   html() {
     return `<textarea${this.attributesMap.join('')}>${this.value}</textarea>`
   }
 }
 
 class CheckBox extends Widget {
+  adjustAttributes(attributes) {
+    delete attributes.required
+    return attributes
+  }
+
   html() {
     delete this.attributesMap.required
-    return `<input type="checkbox" value="1"${this.value ? ' checked="checked"' : ''}}${this.attributesMap.join('')}>`
+    return `<input type="checkbox" value="1"${this.value ? ' checked="checked"' : ''}${this.attributesMap.join('')}>`
   }
 }
 
@@ -67,7 +85,7 @@ class Field {
     this.value = value
   }
 
-  html({ _class, ...attributesObject }) {
+  html({ _class, ...attributesObject } = {}) {
     const attributes = {
       name: this.key,
       required: this.required,

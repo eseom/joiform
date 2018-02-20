@@ -96,4 +96,5 @@ server.register([{
   })
 
   server.start()
+  console.log('server started at localhost:4500')
 })

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "license": "MIT",
   "main": "joiform.js",
+  "scripts": {
+    "sampleserver": "node examples/index",
+    "test": "jest --watch"
+  },
   "dependencies": {
     "forms": "^1.3.0",
     "hapi": "^17.2.0",
@@ -12,6 +16,7 @@
     "yar": "^9.0.1"
   },
   "devDependencies": {
+    "jest": "^22.3.0",
     "nodemon": "^1.14.12"
   }
 }
