@@ -45,4 +45,3 @@ test('validation', () => {
   expect(aForm.validate())
     .toBeTruthy()
 });
-
