@@ -15,6 +15,9 @@ class Widget {
 
 class TextInput extends Widget {
   adjustAttributes(attributes) {
+    if (!attributes.required) {
+      delete attributes.required
+    }
     return {
       ...attributes,
       type: this.isPassword ? 'password' : 'text',
@@ -29,6 +32,9 @@ class TextInput extends Widget {
 
 class TextArea extends Widget {
   adjustAttributes(attributes) {
+    if (!attributes.required) {
+      delete attributes.required
+    }
     return attributes
   }
 

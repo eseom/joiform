@@ -15,7 +15,7 @@ const schema = Joi.object().keys({
     .meta({
       type: 'password'
     }),
-  memo: Joi.string().min(3).required().description('You can memo.')
+  memo: Joi.string().description('You can memo.').allow('').required()
     .meta({
       widget: TextArea,
     }),

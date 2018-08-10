@@ -9,7 +9,12 @@ const makeForm = () =>
       .meta({
         type: 'password',
       }),
+    extraField: Joi.string().min(3).max(30),
     memo: Joi.string().min(10).required().description('This is a textarea widget.')
+      .meta({
+        widget: TextArea,
+      }),
+    memoOptional: Joi.string().min(10).description('This is a textarea widget.')
       .meta({
         widget: TextArea,
       }),
@@ -29,12 +34,17 @@ test('test an input widget 1', () => {
   expect(aForm.password.html({ 'data-example': 'example1' }))
     .toBe('<input name="password" required="true" data-example="example1" type="password" value="">');
 
+  expect(aForm.extraField.html())
+    .toBe('<input name="extraField" type="text" value="">');
+
   expect(aForm.memo.html())
     .toBe('<textarea name="memo" required="true"></textarea>');
   expect(aForm.memo.html({ _class: 'form-control' }))
     .toBe('<textarea name="memo" required="true" class="form-control"></textarea>');
   expect(aForm.memo.html({ _class: 'form-control', id: 'id-memo' }))
     .toBe('<textarea name="memo" required="true" class="form-control" id="id-memo"></textarea>');
+  expect(aForm.memoOptional.html({}))
+    .toBe('<textarea name="memoOptional"></textarea>');
 
   expect(aForm.agree.html())
     .toBe('<input type="checkbox" value="1" name="agree">');
