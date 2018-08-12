@@ -24,6 +24,9 @@ const makeForm = () =>
 test('test an input widget 1', () => {
   const aForm = makeForm()
 
+  expect(aForm.username.required).toBeTruthy()
+  expect(aForm.extraField.required).toBeFalsy()
+
   expect(aForm.username.html())
     .toBe('<input name="username" required="true" type="text" value="">');
   expect(aForm.username.html({ 'data-example': 'example1' }))
@@ -63,6 +66,10 @@ test('validation', () => {
   })
   expect(aForm.validate())
     .toBeTruthy()
+  expect(aForm.hasErrors())
+    .toBeFalsy()
+  expect(aForm.getErrors())
+    .toMatchObject([])
   expect(aForm.username.hasErrors())
     .toBeFalsy()
   expect(aForm.agree.html({ id: 'id-agree' }))
@@ -76,6 +83,10 @@ test('validation', () => {
   })
   expect(aForm.validate())
     .toBeFalsy()
+  expect(aForm.hasErrors())
+    .toBeTruthy()
+  expect(aForm.getErrors()[0].message)
+    .toBe("\"username\" length must be at least 3 characters long")
   expect(aForm.username.toString())
     .toBe('name: username, type: string, required: true')
   expect(aForm.password.toString())

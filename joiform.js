@@ -66,6 +66,7 @@ class Field {
     if (this.type === 'boolean') {
       this.value = this.schema._flags.default || false
     }
+    // console.log(schema)
     this.description = schema._description
     this.isPassword = false
     this.widget = undefined
@@ -131,11 +132,12 @@ exports.Form = class Form {
     this.__fields = []
     this.__payload = {}
     this.__schema = schema
-    const keys = Object.keys(schema)
+    // const keys = Object.keys(schema)
     schema._inner.children.forEach((c) => {
       this.__fields.push(c.key)
       this[c.key] = new Field(c.key, c.schema)
     })
+    this.wasValidated = false
   }
 
   update(payload) {
@@ -149,6 +151,16 @@ exports.Form = class Form {
     })
   }
 
+  hasErrors() {
+    return this.__errorCount > 0
+  }
+
+  getErrors() {
+    if (this.__error && this.__error.details)
+      return this.__error.details
+    return []
+  }
+
   validate() {
     const { error, value } = Joi.validate(this.__payload, this.__schema, {
       abortEarly: false,
@@ -160,6 +172,8 @@ exports.Form = class Form {
     }
     this.__errorCount = error ? error.details.length : 0
     this.__error = error
+
+    this.wasValidated = true
     return error === null
   }
 

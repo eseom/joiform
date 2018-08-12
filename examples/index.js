@@ -8,20 +8,6 @@ const server = Hapi.Server({
   port: 4500
 })
 
-// define a schema
-const schema = Joi.object().keys({
-  username: Joi.string().alphanum().min(3).max(30).required(),
-  password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/)
-    .meta({
-      type: 'password'
-    }),
-  memo: Joi.string().description('You can memo.').allow('').required()
-    .meta({
-      widget: TextArea,
-    }),
-  agree: Joi.bool().default(false).description('agreement'),
-})
-
 // server start with yar and nunjucks-template
 server.register([{
   plugin: require('yar'),
@@ -52,6 +38,20 @@ server.register([{
     },
     relativeTo: __dirname,
     path: __dirname + '/templates'
+  })
+
+  // define a schema
+  const schema = Joi.object().keys({
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required()
+      .meta({
+        type: 'password'
+      }),
+    memo: Joi.string().description('You can memo.').allow('')
+      .meta({
+        widget: TextArea,
+      }),
+    agree: Joi.bool().default(false).description('agreement'),
   })
 
   // routes

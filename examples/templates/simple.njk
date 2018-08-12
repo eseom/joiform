@@ -1,26 +1,117 @@
 {% extends 'base.njk' %}
 
 {% macro render_field(field) %}
-  <div class="form-group{% if field.hasErrors() %} has-warning{% endif %}">
-    <label for="id-{{ field.label }}" class="">{{ field.label }}</label>
-    {{ field.html({ _class: 'form-control', id: 'id-' + field.label }) | safe }}
-    <small class="text-info">{{field.description }}</small>
+  <label for="id-{{ field.label }}" class="">
+    {{ field.label }}
+    {% if not field.required %}
+      <span class="text-muted">(Optional)</span>
+    {% endif %}
+  </label>
+  <div class="input-group">
+    {% if field.hasErrors() %}
+      {% set errorClass = ' is-invalid' %}
+    {% else %}
+      {% set errorClass = '' %}
+    {% endif %}
+
+    {{ field.html({
+      _class: 'form-control' + errorClass,
+      id: 'id-' + field.label
+    }) | safe }}
+
     {% if field.hasErrors() %}
       {% for error in field.errors %}
-        <div class="form-control-feedback">{{ error }}</div>
+        <div class="invalid-feedback">{{ error }}</div>
       {% endfor %}
     {% endif %}
   </div>
+  {% if field.description %}
+    <p>
+      <small class="text-info">{{field.description }}
+        (description)</small>
+    </p>
+  {% endif %}
 
 {% endmacro %}
 
 {% block body %}
+
+  <div class="container">
+    <div class="py-5 text-center">
+      {# <img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72"> #}
+      <h2>Simple registration form</h2>
+      <p class="lead">Below is an example form built with
+        <strong>hapijs</strong>,
+        <strong>joiform</strong>
+        and
+        <strong>Bootstrap 4</strong>.</p>
+    </div>
+
+    <div class="row">
+      <div class="offset-md-2 col-md-8 order-md-1">
+
+        {% for name, items in flashes %}
+          {% for item in items %}
+            <div class="alert alert-{{ name }}">
+              <h6>flash messages</h6>
+              {{ item | safe }}
+            </div>
+          {% endfor %}
+        {% endfor %}
+
+        {% if loginForm.hasErrors() %}
+          <div class="alert alert-danger">
+            <h6>total errors</h6>
+            {% for error in loginForm.getErrors() %}
+              <div>
+                in
+                <strong>{{ error.path }}</strong>,
+                {{ error.message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <h4 class="mb-3">Account information</h4>
+        <form class="needs-validation" novalidate="novalidate" method="post">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ render_field(loginForm.username) }}
+            </div>
+            <div class="col-md-6 mb-3">
+              {{ render_field(loginForm.password) }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            {{ render_field(loginForm.memo) }}
+          </div>
+
+          <div class="d-block my-3">
+            <div class="custom-checkbox">
+              {{ render_field(loginForm.agree) }}
+            </div>
+          </div>
+
+          {# <label for="firstName">Username</label>
+            <input type="text" class="form-control" id="firstName" placeholder="" value="" required="required">
+            <div class="invalid-feedback">
+              Valid first name is required.
+            </div> #}
+          <button class="btn btn-primary btn-sm btn-block" type="submit">Continue to checkout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block body2 %}
   {{ super() }}
   <div class="container-fluid">
     <div class="mt-3">
-      <h2>
-        simple Joiform example
-      </h2>
+      <h1 class="bd-title" id="content">simple Joiform example</h1>
+
     </div>
 
     <hr>
